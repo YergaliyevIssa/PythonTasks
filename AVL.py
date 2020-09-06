@@ -33,7 +33,7 @@ class AVLtree:
 			
 		elif balance > 1:
 			if key < root.left.key:
-				root - self.RightRotate(root)
+				root = self.RightRotate(root)
 			else:
 				root.left = self.LeftRotate(root.left)
 				root = self.RightRotate(root)
@@ -41,16 +41,50 @@ class AVLtree:
 		return root
 
 	def delete(self, root, key):
+		if not root:
+			return None
+		elif key < root.key:
+			root.left = self.delete(root.left, key)
+		elif key > root.key:
+			root.right = self.delete(root.right, key)
+		else:
+			if root.left == None:
+				root = root.right
+				return root
+			elif root.right == None:
+				root = root.left
+				return root
+			else:
+				tmp = self.getMax(root.left)
+				root.val = tmp.val
+				root.left = self.delete(root.left, tmp.val)
 
+		root.height = max(self.get_height(root.left), self.get_height(root.right)) + 1
+		balance = self.get_balance(root)
+
+		if balance < -1:
+			if self.get_balance(root.right) <= 0:
+				return self.LeftRotate(root)
+			else:
+				root.right = self.RightRotate(root.right)
+				return self.LeftRotate(root)
+		elif balance > 1:
+			if self.get_balance(root.right) >= 0:
+				return self.RightRotate(root)
+			else:
+				root.left = self.LeftRotate(root.left)
+				return self.RightRotate(root)
+
+		return root
 
 	def find(self, root, key):
 		if root == None:
 			return False
-		if root.key == key:
-			return (True, root)
-		if key < root.key:
+		elif root.key == key:
+			return True
+		elif key < root.key:
 			return self.find(root.left, key)
-		if key > root.key:
+		elif key > root.key:
 			return self.find(root.right, key)
 
 
@@ -62,7 +96,7 @@ class AVLtree:
 
 	def get_balance(self, root):
 
-		return self.get_height(rool.left) - self.get_height(root.right)
+		return self.get_height(root.left) - self.get_height(root.right)
 
 	def LeftRotate(self, root):
 		new_root = root.right
@@ -92,13 +126,33 @@ class AVLtree:
 	def InOrderByPass(self, root):
 		if root.left != None:
 			self.InOrderByPass(root.left)
-		print(root.key)
+		print((root.key, root.height))
 		if root.right != None:
 			self.InOrderByPass(root.right)
+
+	def PreOrderByPass(self, root):
+		print((root.key, root.height))
+		if root.left != None:
+			self.PreOrderByPass(root.left)
+		if root.right != None:
+			self.PreOrderByPass(root.right)
+
+	def PostOrderByPass(self, root):
+		if root.left != None:
+			self.PostOrderByPass(root.left)
+		if root.right != None:
+			self.PostOrderByPass(root.right)
+		print((root.key, root.height))
 
 
 def main():
 	import random
+	n = 20
+	Tree = AVLtree() 
+	root = None
+	for i in range(n):
+  		root = Tree.insert(root, random.randint(-50, 50)) 
+	Tree.InOrderByPass(root)
 
 
 
